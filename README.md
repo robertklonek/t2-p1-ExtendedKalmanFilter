@@ -32,7 +32,7 @@ float teta = measurement_pack.raw_measurements_(1);
 ekf_.x_(0) = ro * cos(teta);
 ekf_.x_(1) = ro * sin(teta);
 ```
-* call update function with appropriate matrices (laser and ladar have different sizes of R and H matrices):
+* call update function with appropriate matrices (laser and ladar have different sizes of ``R`` and ``H`` matrices):
 ```
 if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
 cout<<"Radar:"<<endl;
@@ -50,18 +50,19 @@ cout<<"Lidar:"<<endl;
 ekf_.H_ = H_laser_;
 ekf_.R_ = R_laser_;
 ekf_.Update(measurement_pack.raw_measurements_);
-  }
+ }
 ```
-* prepare Extended Filter Update step function, where before caclulation vector ''y'' (the difference between predicted and measured position), the cartesian coordinates needed to be converted to polar coordinates:
+* prepare Extended Filter Update step function, where before caclulation vector ``y`` (the difference between predicted and measured position), the cartesian coordinates needed to be converted to polar coordinates:
 ```
 float rho = sqrt(x_(0)*x_(0) + x_(1)*x_(1));
 float phi = atan2(x_(1), x_(0));
 //divide by zero protection
 float rho_dot;
 if (fabs(rho) < 0.0001) {
-rho_dot = 0;
-} else {
-rho_dot = (x_(0)*x_(2) + x_(1)*x_(3))/rho;
+  rho_dot = 0;
+} 
+else {
+  rho_dot = (x_(0)*x_(2) + x_(1)*x_(3))/rho;
 }
 VectorXd z_pred(3);
 z_pred << rho, phi, rho_dot;
@@ -69,16 +70,16 @@ z_pred << rho, phi, rho_dot;
 * ensure the calculated ``theta`` angle was inside the interval [-π , +π] in each update step
 ```
 while (y(1) > M_PI) {
-y(1) -= 2 * M_PI;
+  y(1) -= 2 * M_PI;
 }
 while (y(1) < -M_PI) {
-y(1) += 2 * M_PI;
+  y(1) += 2 * M_PI;
 }
 ```
 # Results
 As a result, the following RMSE values where achived:
-* for dataset 1: (0.0973, 0.855, 0.4513, 0.4399)
-* for dataset 2: (0.0973, 0.855, 0.4513, 0.4399)
+* for dataset 1: (0.0973, 0.0855, 0.4513, 0.4399)
+* for dataset 2: (0.0726, 0.0965, 0.4216, 0.4932)
 
 ![first](img/first.png)
 ![second](img/second.png)
